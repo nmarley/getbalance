@@ -68,10 +68,16 @@ func main() {
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(len(entries))
+
+	// Bound concurrent goroutines at about 8 or so
+	guard := make(chan struct{}, 8)
+	defer close(guard)
 
 	total := float64(0)
 	for _, e := range entries {
+		wg.Add(1)
+		guard <- struct{}{}
+
 		go func(entry AddrEntry) {
 			defer wg.Done()
 			bal, err := fetchBalance(entry.Address)
@@ -80,6 +86,7 @@ func main() {
 			}
 			total += bal
 			fmt.Printf("Balance for %v (%v) : %v\n", entry.Label, entry.Address, bal)
+			<-guard
 		}(e)
 	}
 
