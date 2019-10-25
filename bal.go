@@ -85,7 +85,7 @@ func main() {
 				panic(err)
 			}
 			total += bal
-			fmt.Printf("Balance for %v (%v) : %v\n", entry.Label, entry.Address, bal)
+			fmt.Printf("% 10s (%v) : %14.8f\n", entry.Label, entry.Address, bal)
 			<-guard
 		}(e)
 	}
